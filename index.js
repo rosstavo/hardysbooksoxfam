@@ -119,4 +119,6 @@ const getProducts = async () => {
   await browser.close();
 };
 
+getProducts();
+
 cron.schedule("*/1 * * * *", getProducts).start();
