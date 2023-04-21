@@ -59,7 +59,7 @@ server.listen(PORT, function () {
 });
 
 const getProducts = async () => {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
   const page = await browser.newPage();
   await page.goto(process.env.OXFAM_URL);
 
