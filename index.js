@@ -1,17 +1,62 @@
+/**
+ * Node packages
+ */
 const puppeteer = require("puppeteer");
 const cron = require("node-cron");
+const express = require("express");
+const bodyParser = require("body-parser");
 
+/**
+ * Config
+ */
+require("dotenv").config();
+
+/**
+ * Controllers
+ */
 const { retrieveProducts, storeProducts } = require("./controllers/firebase");
 const { sendNotification } = require("./controllers/ntfy");
+
+/**
+ * Utils
+ */
 const normaliseString = require("./utils/normaliseString");
 
+/**
+ * Data
+ */
 const authorKeywords = require("./data/keywords");
 
 const allKeywords = Object.keys(authorKeywords).reduce((acc, author) => {
   return [...acc, author, ...authorKeywords[author]];
 }, []);
 
-require("dotenv").config();
+const PORT = process.env.PORT || 4000;
+
+// Express is our web server
+const app = express();
+const server = require("http").createServer(app);
+
+// Parse requests of content-type - application/json
+const rawBodyBuffer = (req, res, buf, encoding) => {
+  if (buf && buf.length) {
+    req.rawBody = buf.toString(encoding || "utf8");
+  }
+};
+
+app.use(bodyParser.urlencoded({ verify: rawBodyBuffer, extended: true }));
+app.use(bodyParser.json({ verify: rawBodyBuffer }));
+
+// Import routes
+const homeRoutes = require("./routes/home");
+
+// Use routes
+app.get("*", homeRoutes);
+
+// Start the server
+server.listen(PORT, function () {
+  console.log("listening on port 4000");
+});
 
 const getProducts = async () => {
   const browser = await puppeteer.launch();
