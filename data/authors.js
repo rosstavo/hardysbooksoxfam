@@ -241,7 +241,8 @@ module.exports = {
     "Tarzan's Quest",
     "Tarzan the Untamed",
   ],
-  clarke: [
+  "arthur c clarke": [
+    "clarke",
     "2001: A Space Odyssey",
     "Rendezvous with Rama",
     "Childhood's End",
@@ -263,7 +264,8 @@ module.exports = {
     "Sunstorm",
     "Against the Fall of Night",
   ],
-  dick: [
+  "philip k dick": [
+    "dick",
     "Do Androids Dream of Electric Sheep?",
     "The Man in the High Castle",
     "A Scanner Darkly",
@@ -285,7 +287,8 @@ module.exports = {
     "The Simulacra",
     "Radio Free Albemuth",
   ],
-  erikson: [
+  "steven erikson": [
+    "erikson",
     "Gardens of the Moon",
     "Midnight Tides",
     "Memories of Ice",
@@ -329,7 +332,8 @@ module.exports = {
     "The Stone God Awakens",
     "The Unreasoning Mask",
   ],
-  feist: [
+  "raymond e feist": [
+    "feist",
     "Magician: Apprentice",
     "Magician",
     "Daughter of the Empire",
@@ -351,7 +355,8 @@ module.exports = {
     "King of Ashes",
     "Krondor: The Assassins",
   ],
-  gaiman: [
+  "neil gaiman": [
+    "gaiman",
     "The Ocean at the End of the Lane",
     "American Gods",
     "Neverwhere",
@@ -368,7 +373,7 @@ module.exports = {
     "Death: The High Cost of Living",
     "The Sleeper and the Spindle",
   ],
-  garner: [
+  "alan garner": [
     "The Wierdstone of Brisingamen",
     "The Owl Service",
     "Treacle Walker",
@@ -390,7 +395,7 @@ module.exports = {
     "Tom Fobble's Day",
     "The Aimer Gate",
   ],
-  gemmell: [
+  "david gemmell": [
     "Waylander",
     "Lord of the Silver Bow",
     "Shield of Thunder",
@@ -411,7 +416,7 @@ module.exports = {
     "Wolf in the Shadow",
     "Dark Prince",
   ],
-  goodkind: [
+  "terry goodkind": [
     "Wizard's First Rule",
     "Faith of the Fallen",
     "The Pillars of Creation",
@@ -453,13 +458,6 @@ module.exports = {
   ],
   "peter f hamilton": [
     "Pandora's Star",
-    "Judas Unchained",
-    "The Reality Dysfunction",
-    "The Neutronium Alchemist",
-    "The Naked God",
-  ],
-  "f hamilton": [
-    "Pandora's Star",
     "The Reality Dysfunction",
     "The Dreaming Void",
     "Judas Unchained",
@@ -480,7 +478,8 @@ module.exports = {
     "The Nano Flower",
     "The Light Chaser",
   ],
-  heinlein: [
+  "robert a heinlein": [
+    "heinlein",
     "Stranger in a Strange Land",
     "Starship Troopers",
     "A Moon Is a Harsh Mistress",
@@ -579,7 +578,8 @@ module.exports = {
     "The Thing Invisible",
     "The Wandering Soul",
   ],
-  jacques: [
+  "brian jacques": [
+    "jacques",
     "Redwall",
     "Mossflower",
     "Mattimeo",
@@ -706,7 +706,7 @@ module.exports = {
     "Different Seasons",
     "The Tommyknockers",
   ],
-  leiber: [
+  "fritz leiber": [
     "Swords and Deviltry ",
     "Swords Against Death ",
     "Swords in the Mist ",
@@ -728,7 +728,8 @@ module.exports = {
     "The Ghost Light ",
     "Destiny Times Three",
   ],
-  lewis: [
+  "c s lewis": [
+    "lewis",
     "The Lion, the Witch and the Wardrobe",
     "Mere Christianity",
     "Prince Caspian",
@@ -750,7 +751,8 @@ module.exports = {
     "The Abolition of Man",
     "God in the Dock",
   ],
-  "rr martin": [
+  "george r r martin": [
+    "rr martin",
     "A Game of Thrones",
     "A Clash of Kings",
     "A Storm of Swords",
@@ -793,14 +795,16 @@ module.exports = {
     "Archform: Beauty",
     "Ghost of the Revelator",
   ],
-  moorcock: [
+  "michael moorcock": [
+    "moorcock",
     "Elric of Melniboné",
     "The Sailor on the Seas of Fate",
     "The Weird of the White Wolf",
     "The Vanishing Tower",
     "Stormbringer",
   ],
-  niven: [
+  "larry niven": [
+    "niven",
     "Ringworld",
     "The Mote in God's Eye with Jerry Pournelle",
     "Ringworld Engineers",
@@ -822,7 +826,7 @@ module.exports = {
     "Fleet of Worlds with Edward M. Lerner",
     "The Ringworld Throne",
   ],
-  peake: ["Titus Groan", "Gormenghast", "Titus Alone"],
+  "mervyn peake": ["peake", "Titus Groan", "Gormenghast", "Titus Alone"],
   pratchett: [
     "Discworld",
     "The Colour of Magic",
@@ -981,7 +985,8 @@ module.exports = {
     "The White Sybil and Other Stories",
     "A Vintage from Atlantis",
   ],
-  stephenson: [
+  "neal stephenson": [
+    "stephenson",
     "Snow Crash",
     "Cryptonomicon",
     "The Diamond Age",
@@ -1003,7 +1008,8 @@ module.exports = {
     "Subutai Corporation",
     "Hieroglyph",
   ],
-  straub: [
+  "peter straub": [
+    "straub",
     "Ghost Story",
     "Shadowland",
     "The Talisman",
@@ -1062,7 +1068,8 @@ module.exports = {
     "The War of Nerves",
     "The Mixed Men",
   ],
-  vance: [
+  "jack vance": [
+    "vance",
     "The Dying Earth",
     "The Eyes of the Overworld",
     "The Dragon Masters",
@@ -1105,7 +1112,8 @@ module.exports = {
     "Sleeping Late on Judgement Day",
     "The Heart of What Was Lost",
   ],
-  wolfe: [
+  "gene wolfe": [
+    "wolfe",
     "The Book of the New Sun",
     "The Fifth Head of Cerberus",
     "The Urth of the New Sun",
@@ -1125,7 +1133,8 @@ module.exports = {
     "Endangered Species",
     "Operation ARES",
   ],
-  wyndham: [
+  "john wyndham": [
+    "wyndham",
     "The Day of the Triffids",
     "The Chrysalids",
     "The Midwich Cuckoos",
@@ -1147,21 +1156,4 @@ module.exports = {
     "Re-Birth",
     "The Day of the Triffids",
   ],
-  // Keywords
-  signed: [
-    "signed first edition",
-    "signed 1st edition",
-    "signed 1st",
-    "signed 1st ed",
-  ],
-  "first edition": [
-    "1st edition",
-    "1st ed",
-    "first print",
-    "1st print",
-    "first impression",
-    "1st impression",
-    "1st",
-  ],
-  anthology: ["compilation", "collection", "compendium"],
 };

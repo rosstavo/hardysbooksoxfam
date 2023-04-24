@@ -16,6 +16,7 @@ require("dotenv").config();
  */
 const { retrieveProducts, storeProducts } = require("./controllers/firebase");
 const { sendNotification } = require("./controllers/ntfy");
+const { evaluatePages } = require("./controllers/puppeteer");
 
 /**
  * Utils
@@ -25,10 +26,16 @@ const normaliseString = require("./utils/normaliseString");
 /**
  * Data
  */
-const authorKeywords = require("./data/keywords");
+const authorKeywords = require("./data/authors");
+const attributeKeywords = require("./data/attributes");
 
-const allKeywords = Object.keys(authorKeywords).reduce((acc, author) => {
-  return [...acc, author, ...authorKeywords[author]];
+const mergedKeywords = {
+  ...authorKeywords,
+  ...attributeKeywords,
+};
+
+const allKeywords = Object.keys(mergedKeywords).reduce((acc, key) => {
+  return [...acc, key, ...mergedKeywords[key]];
 }, []);
 
 const PORT = process.env.PORT || 4000;
@@ -58,49 +65,90 @@ server.listen(PORT, function () {
   console.log("listening on port 4000");
 });
 
-const getProducts = async () => {
-  const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
-  const page = await browser.newPage();
-  await page.goto(process.env.OXFAM_URL);
-
-  // Wait for the page to load
-  await page.waitForSelector(".product-item-anchor");
-
-  // Find all the '.product-item-anchor' elements
-  const liveProducts = await page.$$eval(".product-item-anchor", (anchors) => {
-    return anchors.map((anchor) => {
-      // Go up one level to get the parent element
-      // Then find the '.product-item-price' element
-      const priceElement = anchor.parentElement.querySelector(".product-price");
-
-      return {
-        href: anchor.href,
-        title: anchor.textContent,
-        sku: anchor.href.split("?")[1].split("=")[1],
-        id: anchor.href.split("?")[1].split("=")[1],
-        price: priceElement.textContent.replace("\n", "").trim(),
-      };
-    });
-  });
-
-  const storedProducts = await retrieveProducts();
-
-  const newProducts = liveProducts
-    .filter((product) => {
+const pages = [
+  {
+    url: process.env.OXFAM_URL,
+    suffix: "",
+    selector: ".product-item-anchor",
+    dataModel: {
+      href: {
+        type: "attribute",
+        value: "href",
+      },
+      title: {
+        type: "textContent",
+      },
+      sku: {
+        type: "attribute",
+        value: "href",
+        transform: (value) => value.split("?")[1].split("=")[1],
+      },
+      id: {
+        type: "attribute",
+        value: "href",
+        transform: (value) => value.split("?")[1].split("=")[1],
+      },
+      price: {
+        type: "textContent",
+        transform: (value) => value.replace("\n", "").trim(),
+        location: "parentElement",
+        selector: ".product-price",
+      },
+    },
+    filter: (product) => {
       // Search product.title for any of the keywords
       return allKeywords.some((keyword) => {
         return normaliseString(product.title).includes(
           normaliseString(keyword)
         );
       });
-    })
-    .filter((product) => {
-      if (!storedProducts.length) return true;
+    },
+  },
+  {
+    url: process.env.ABEBOOKS_URL,
+    suffix: encodeURIComponent(
+      Object.keys(authorKeywords).join(" OR ")
+    ).replace(/%20/g, "+"),
+    selector: ".result-item",
+    dataModel: {
+      href: {
+        type: "attribute",
+        value: "href",
+        selector: "a[itemprop=url]",
+      },
+      title: {
+        type: "textContent",
+        selector: "a[itemprop=url]",
+      },
+      sku: {
+        type: "attribute",
+        value: "data-csa-c-item-id",
+      },
+      id: {
+        type: "attribute",
+        value: "data-csa-c-item-id",
+      },
+      price: {
+        type: "textContent",
+        selector: ".item-price",
+        transform: (value) => value.replace("\n", "").replace(" ", "").trim(),
+      },
+    },
+  },
+];
 
-      return !storedProducts.find((storedProduct) => {
-        return storedProduct.id === product.sku;
-      });
+const getProducts = async () => {
+  const liveProducts = await evaluatePages(pages);
+
+  const storedProducts = await retrieveProducts();
+
+  const newProducts = liveProducts.filter((product) => {
+    if (!storedProducts.length) return true;
+
+    return !storedProducts.find((storedProduct) => {
+      return storedProduct.id === product.sku;
     });
+  });
 
   console.log("New products: ", newProducts);
 
@@ -115,10 +163,9 @@ const getProducts = async () => {
 
     storeProducts(newProducts);
   }
-
-  await browser.close();
 };
 
-getProducts();
+// getProducts();
 
+// Run the function every minute
 cron.schedule("*/1 * * * *", getProducts).start();
