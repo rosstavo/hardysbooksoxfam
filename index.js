@@ -68,6 +68,7 @@ server.listen(PORT, function () {
 const pages = [
   {
     url: process.env.OXFAM_URL,
+    rootUrl: process.env.OXFAM_ROOT_URL,
     suffix: "",
     selector: ".product-item-anchor",
     dataModel: {
@@ -106,6 +107,7 @@ const pages = [
   },
   {
     url: process.env.ABEBOOKS_URL,
+    rootUrl: process.env.ABEBOOKS_ROOT_URL,
     suffix: encodeURIComponent(
       Object.keys(authorKeywords).join(" OR ")
     ).replace(/%20/g, "+"),

@@ -63,6 +63,13 @@ const evaluatePages = async (pages) => {
     liveProducts.push(
       ...elements.map((el) =>
         Object.keys(el).reduce((acc, key) => {
+          if (key === "href") {
+            return {
+              ...acc,
+              [key]: page.rootUrl + el[key],
+            };
+          }
+
           if (page.dataModel[key].transform) {
             return {
               ...acc,
