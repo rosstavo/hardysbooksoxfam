@@ -14,7 +14,9 @@ const evaluatePages = async (pages) => {
     // New page instance
     const browserPage = await browser.newPage();
 
-    browserPage.on("console", (msg) => console.log(msg.text()));
+    if (process.env.NODE_ENV === "development") {
+      browserPage.on("console", (msg) => console.log(msg.text()));
+    }
 
     await browserPage.goto(page.url + page.suffix);
 
