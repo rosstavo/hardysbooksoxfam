@@ -187,7 +187,7 @@ const getProducts = async () => {
   }
 };
 
-getProducts();
+// getProducts();
 
 // Run the function every minute
 cron.schedule("*/1 * * * *", getProducts).start();
