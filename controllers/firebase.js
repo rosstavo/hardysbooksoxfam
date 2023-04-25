@@ -72,7 +72,7 @@ const retrieveProducts = async () => {
   const productsSnapshot = await getDocs(productsQuery);
 
   const productsData = productsSnapshot.docs.map((doc) => {
-    return { id: doc.id, ...doc.data() };
+    return { id: doc.id };
   });
 
   return productsData;

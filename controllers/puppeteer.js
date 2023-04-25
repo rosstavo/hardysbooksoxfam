@@ -65,10 +65,16 @@ const evaluatePages = async (pages) => {
     liveProducts.push(
       ...elements.map((el) =>
         Object.keys(el).reduce((acc, key) => {
-          if (key === "href") {
+          if (key === "href" || key === "img") {
+            // if el[key] is a relative path, add the page url to it
+            const urlSuffix =
+              el[key].startsWith("/") || el[key].startsWith("./")
+                ? page.rootUrl
+                : "";
+
             return {
               ...acc,
-              [key]: page.rootUrl + el[key],
+              [key]: urlSuffix + el[key],
             };
           }
 

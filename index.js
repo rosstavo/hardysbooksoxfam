@@ -70,30 +70,38 @@ const pages = [
     url: process.env.OXFAM_URL,
     rootUrl: process.env.OXFAM_ROOT_URL,
     suffix: "",
-    selector: ".product-item-anchor",
+    selector: ".g-product-cards",
     dataModel: {
       href: {
         type: "attribute",
         value: "href",
+        selector: ".product-item-anchor",
       },
       title: {
         type: "textContent",
+        selector: ".product-item-anchor",
       },
       sku: {
         type: "attribute",
         value: "href",
         transform: (value) => value.split("?")[1].split("=")[1],
+        selector: ".product-item-anchor",
       },
       id: {
         type: "attribute",
         value: "href",
         transform: (value) => value.split("?")[1].split("=")[1],
+        selector: ".product-item-anchor",
       },
       price: {
         type: "textContent",
         transform: (value) => value.replace("\n", "").trim(),
-        location: "parentElement",
         selector: ".product-price",
+      },
+      img: {
+        type: "attribute",
+        value: "src",
+        selector: ".bg-product-image",
       },
     },
     filter: (product) => {
@@ -135,6 +143,15 @@ const pages = [
         selector: ".item-price",
         transform: (value) => value.replace("\n", "").replace(" ", "").trim(),
       },
+      author: {
+        type: "textContent",
+        selector: ".author",
+      },
+      img: {
+        type: "attribute",
+        value: "src",
+        selector: ".srp-item-image",
+      },
     },
   },
 ];
@@ -158,8 +175,11 @@ const getProducts = async () => {
     newProducts.forEach((product) => {
       sendNotification(
         "New book found!",
-        `${product.title} ${product.price}`,
-        product.href
+        `${product.title} ${product.author && "(" + product.author + ")"} ${
+          product.price
+        }`,
+        product.href,
+        product.img || ""
       );
     });
 
@@ -167,7 +187,7 @@ const getProducts = async () => {
   }
 };
 
-// getProducts();
+getProducts();
 
 // Run the function every minute
 cron.schedule("*/1 * * * *", getProducts).start();
