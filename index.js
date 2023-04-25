@@ -173,11 +173,11 @@ const getProducts = async () => {
 
   if (newProducts.length > 0) {
     newProducts.forEach((product) => {
+      const author = product.author ? `(${product.author}) –` : "–";
+
       sendNotification(
         "New book found!",
-        `${product.title} ${product.author && "(" + product.author + ")"} ${
-          product.price
-        }`,
+        `${product.title} ${author} ${product.price}`,
         product.href,
         product.img || ""
       );
