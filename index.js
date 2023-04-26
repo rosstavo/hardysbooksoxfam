@@ -187,7 +187,21 @@ const getProducts = async () => {
   }
 };
 
-// getProducts();
+/**
+ *
+ */
+const runCron = async () => {
+  // If time is not between 9am and 9pm UTC, return
+  const now = new Date();
+
+  if (now.getHours() < 8 || now.getHours() > 21) return;
+
+  getProducts();
+};
+
+if (process.env.NODE_ENV === "development") {
+  getProducts();
+}
 
 // Run the function every minute
-cron.schedule("*/1 * * * *", getProducts).start();
+cron.schedule("*/1 * * * *", runCron).start();
