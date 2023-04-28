@@ -11,6 +11,7 @@ const sendNotification = async (title, body, url, img) => {
         click: url,
         tags: ["books"],
         attach: img,
+        priority: 4,
         actions: [
           {
             action: "view",
