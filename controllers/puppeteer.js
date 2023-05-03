@@ -102,7 +102,11 @@ const evaluatePages = async (pages) => {
   // Close the browser
   await browser.close();
 
-  return liveProducts;
+  return liveProducts.map((product) => ({
+    ...product,
+    site: page.label,
+    createdAt: new Date(),
+  }));
 };
 
 module.exports = { evaluatePages };

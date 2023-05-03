@@ -78,4 +78,21 @@ const retrieveProducts = async () => {
   return productsData;
 };
 
+const deleteOldProducts = async () => {
+  const productsCollection = collection(db, "products");
+
+  const productsQuery = query(productsCollection);
+
+  const productsSnapshot = await getDocs(productsQuery);
+
+  productsSnapshot.docs.forEach(async (doc) => {
+    const docRef = doc(db, "products", doc.id);
+
+    // If doc is more recent than 4 days, do not delete
+    if (doc.data().createdAt > Date.now() - 345600000) return;
+
+    await deleteDoc(doc);
+  });
+};
+
 module.exports = { db, storeProducts, retrieveProducts, loginAnon };

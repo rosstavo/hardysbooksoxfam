@@ -67,6 +67,7 @@ server.listen(PORT, function () {
 
 const pages = [
   {
+    label: "Oxfam",
     url: process.env.OXFAM_URL,
     rootUrl: process.env.OXFAM_ROOT_URL,
     suffix: "",
@@ -114,6 +115,7 @@ const pages = [
     },
   },
   {
+    label: "AbeBooks",
     url: process.env.ABEBOOKS_URL,
     rootUrl: process.env.ABEBOOKS_ROOT_URL,
     suffix: encodeURIComponent(
