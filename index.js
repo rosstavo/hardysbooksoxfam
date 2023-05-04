@@ -14,8 +14,9 @@ require("dotenv").config();
 /**
  * Controllers
  */
-const { retrieveProducts, storeProducts } = require("./controllers/firebase");
+const { storeProductsInSources } = require("./controllers/firebase");
 const { sendNotification } = require("./controllers/ntfy");
+const { evaluatePages } = require("./controllers/puppeteer");
 
 /**
  * Utils
@@ -25,10 +26,16 @@ const normaliseString = require("./utils/normaliseString");
 /**
  * Data
  */
-const authorKeywords = require("./data/keywords");
+const authorKeywords = require("./data/authors");
+const attributeKeywords = require("./data/attributes");
 
-const allKeywords = Object.keys(authorKeywords).reduce((acc, author) => {
-  return [...acc, author, ...authorKeywords[author]];
+const mergedKeywords = {
+  ...authorKeywords,
+  ...attributeKeywords,
+};
+
+const allKeywords = Object.keys(mergedKeywords).reduce((acc, key) => {
+  return [...acc, key, ...mergedKeywords[key]];
 }, []);
 
 const PORT = process.env.PORT || 4000;
@@ -58,67 +65,135 @@ server.listen(PORT, function () {
   console.log("listening on port 4000");
 });
 
-const getProducts = async () => {
-  const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
-  const page = await browser.newPage();
-  await page.goto(process.env.OXFAM_URL);
-
-  // Wait for the page to load
-  await page.waitForSelector(".product-item-anchor");
-
-  // Find all the '.product-item-anchor' elements
-  const liveProducts = await page.$$eval(".product-item-anchor", (anchors) => {
-    return anchors.map((anchor) => {
-      // Go up one level to get the parent element
-      // Then find the '.product-item-price' element
-      const priceElement = anchor.parentElement.querySelector(".product-price");
-
-      return {
-        href: anchor.href,
-        title: anchor.textContent,
-        sku: anchor.href.split("?")[1].split("=")[1],
-        id: anchor.href.split("?")[1].split("=")[1],
-        price: priceElement.textContent.replace("\n", "").trim(),
-      };
-    });
-  });
-
-  const storedProducts = await retrieveProducts();
-
-  const newProducts = liveProducts
-    .filter((product) => {
+const pages = [
+  {
+    label: "Oxfam",
+    url: process.env.OXFAM_URL,
+    rootUrl: process.env.OXFAM_ROOT_URL,
+    suffix: "",
+    selector: ".g-product-cards",
+    dataModel: {
+      href: {
+        type: "attribute",
+        value: "href",
+        selector: ".product-item-anchor",
+      },
+      title: {
+        type: "textContent",
+        selector: ".product-item-anchor",
+      },
+      sku: {
+        type: "attribute",
+        value: "href",
+        transform: (value) => value.split("?")[1].split("=")[1],
+        selector: ".product-item-anchor",
+      },
+      id: {
+        type: "attribute",
+        value: "href",
+        transform: (value) => value.split("?")[1].split("=")[1],
+        selector: ".product-item-anchor",
+      },
+      price: {
+        type: "textContent",
+        transform: (value) => value.replace("\n", "").trim(),
+        selector: ".product-price",
+      },
+      img: {
+        type: "attribute",
+        value: "src",
+        selector: ".bg-product-image",
+      },
+    },
+    filter: (product) => {
       // Search product.title for any of the keywords
       return allKeywords.some((keyword) => {
         return normaliseString(product.title).includes(
           normaliseString(keyword)
         );
       });
-    })
-    .filter((product) => {
-      if (!storedProducts.length) return true;
+    },
+  },
+  {
+    label: "AbeBooks",
+    url: process.env.ABEBOOKS_URL,
+    rootUrl: process.env.ABEBOOKS_ROOT_URL,
+    suffix: encodeURIComponent(
+      Object.keys(authorKeywords).join(" OR ")
+    ).replace(/%20/g, "+"),
+    selector: ".result-item",
+    dataModel: {
+      href: {
+        type: "attribute",
+        value: "href",
+        selector: "a[itemprop=url]",
+      },
+      title: {
+        type: "textContent",
+        selector: "a[itemprop=url]",
+      },
+      sku: {
+        type: "attribute",
+        value: "data-csa-c-item-id",
+      },
+      id: {
+        type: "attribute",
+        value: "data-csa-c-item-id",
+      },
+      price: {
+        type: "textContent",
+        selector: ".item-price",
+        transform: (value) => value.replace("\n", "").replace(" ", "").trim(),
+      },
+      author: {
+        type: "textContent",
+        selector: ".author",
+      },
+      img: {
+        type: "attribute",
+        value: "src",
+        selector: ".srp-item-image",
+      },
+    },
+  },
+];
 
-      return !storedProducts.find((storedProduct) => {
-        return storedProduct.id === product.sku;
-      });
-    });
+const getProducts = async () => {
+  const liveProducts = await evaluatePages(pages);
 
-  console.log("New products: ", newProducts);
+  const newProducts = await storeProductsInSources(liveProducts);
+
+  console.log("newProducts", newProducts);
 
   if (newProducts.length > 0) {
     newProducts.forEach((product) => {
+      const author = product.author ? `(${product.author}) –` : "–";
+
       sendNotification(
         "New book found!",
-        `${product.title} ${product.price}`,
-        product.href
+        `${product.title} ${author} ${product.price} (${product.site})`,
+        product.href,
+        product.img || ""
       );
     });
-
-    storeProducts(newProducts);
   }
-
-  await browser.close();
 };
 
-getProducts();
+/**
+ *
+ */
+const runCron = async () => {
+  // If time is not between 9am and 9pm UTC, return
+  const now = new Date();
 
-cron.schedule("*/1 * * * *", getProducts).start();
+  if (now.getHours() < 8 || now.getHours() > 21) return;
+
+  getProducts();
+};
+
+if (process.env.NODE_ENV === "development") {
+  getProducts();
+}
+
+// Run the function every minute
+cron.schedule("*/1 * * * *", runCron).start();

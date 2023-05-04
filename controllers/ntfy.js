@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-const sendNotification = async (title, body, url) => {
+const sendNotification = async (title, body, url, img) => {
   try {
     const response = await axios.post(
       "https://ntfy.sh",
@@ -10,6 +10,16 @@ const sendNotification = async (title, body, url) => {
         message: body,
         click: url,
         tags: ["books"],
+        attach: img,
+        priority: 4,
+        actions: [
+          {
+            action: "view",
+            label: "Open Link",
+            url,
+            clear: true,
+          },
+        ],
       })
     );
 
