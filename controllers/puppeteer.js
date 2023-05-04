@@ -62,36 +62,41 @@ const evaluatePages = async (pages) => {
       elements = elements.filter(page.filter);
     }
 
-    liveProducts.push(
-      ...elements.map((el) =>
-        Object.keys(el).reduce((acc, key) => {
-          if (key === "href" || key === "img") {
-            // if el[key] is a relative path, add the page url to it
-            const urlSuffix =
-              el[key].startsWith("/") || el[key].startsWith("./")
-                ? page.rootUrl
-                : "";
-
-            return {
-              ...acc,
-              [key]: urlSuffix + el[key],
-            };
-          }
-
-          if (page.dataModel[key].transform) {
-            return {
-              ...acc,
-              [key]: page.dataModel[key].transform(el[key]),
-            };
-          }
+    const sourceLiveProducts = elements.map((el) =>
+      Object.keys(el).reduce((acc, key) => {
+        if (key === "href" || key === "img") {
+          // if el[key] is a relative path, add the page url to it
+          const urlSuffix =
+            el[key].startsWith("/") || el[key].startsWith("./")
+              ? page.rootUrl
+              : "";
 
           return {
             ...acc,
-            [key]: el[key],
+            [key]: urlSuffix + el[key],
           };
-        }, {})
-      )
+        }
+
+        if (page.dataModel[key].transform) {
+          return {
+            ...acc,
+            [key]: page.dataModel[key].transform(el[key]),
+          };
+        }
+
+        return {
+          ...acc,
+          [key]: el[key],
+        };
+      }, {})
     );
+
+    // Add site to the products
+    sourceLiveProducts.forEach((product) => {
+      product.site = page.label;
+    });
+
+    liveProducts.push(...sourceLiveProducts);
 
     // Close the page
     await browserPage.close();
@@ -104,7 +109,6 @@ const evaluatePages = async (pages) => {
 
   return liveProducts.map((product) => ({
     ...product,
-    site: page.label,
     createdAt: new Date(),
   }));
 };

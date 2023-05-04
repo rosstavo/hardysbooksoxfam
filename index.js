@@ -14,7 +14,7 @@ require("dotenv").config();
 /**
  * Controllers
  */
-const { retrieveProducts, storeProducts } = require("./controllers/firebase");
+const { storeProductsInSources } = require("./controllers/firebase");
 const { sendNotification } = require("./controllers/ntfy");
 const { evaluatePages } = require("./controllers/puppeteer");
 
@@ -161,17 +161,9 @@ const pages = [
 const getProducts = async () => {
   const liveProducts = await evaluatePages(pages);
 
-  const storedProducts = await retrieveProducts();
+  const newProducts = await storeProductsInSources(liveProducts);
 
-  const newProducts = liveProducts.filter((product) => {
-    if (!storedProducts.length) return true;
-
-    return !storedProducts.find((storedProduct) => {
-      return storedProduct.id === product.sku;
-    });
-  });
-
-  console.log("New products: ", newProducts);
+  console.log("newProducts", newProducts);
 
   if (newProducts.length > 0) {
     newProducts.forEach((product) => {
@@ -179,13 +171,11 @@ const getProducts = async () => {
 
       sendNotification(
         "New book found!",
-        `${product.title} ${author} ${product.price}`,
+        `${product.title} ${author} ${product.price} (${product.site})`,
         product.href,
         product.img || ""
       );
     });
-
-    storeProducts(newProducts);
   }
 };
 
